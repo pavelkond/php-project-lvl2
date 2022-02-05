@@ -6,7 +6,9 @@
         "psr-4": {
             "Hexlet\\Code\\": "src/"
         },
-        "files": []
+        "files": [
+            "src/Differ/Differ.php"
+        ]
     },
     "authors": [
         {
@@ -16,5 +18,8 @@
     ],
     "require": {
         "docopt/docopt": "^1.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.6"
     }
 }
