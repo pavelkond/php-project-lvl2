@@ -2,15 +2,15 @@
 
 namespace Differ\Differ;
 
-function normalizePath(string $pathToFile): string
+function getFileFullPath(string $pathToFile): string
 {
-    return str_starts_with($pathToFile, '/') ? $pathToFile : __DIR__ . '/' . $pathToFile;
+    return str_starts_with($pathToFile, '/') ? $pathToFile : __DIR__ . '/../' . $pathToFile;
 }
 
 function genDiff(string $pathToFile1, string $pathToFile2): string
 {
-    $fileContent1 = file_get_contents(normalizePath($pathToFile1));
-    $fileContent2 = file_get_contents(normalizePath($pathToFile2));
+    $fileContent1 = file_get_contents(getFileFullPath($pathToFile1));
+    $fileContent2 = file_get_contents(getFileFullPath($pathToFile2));
     $jsonContent1 = json_decode($fileContent1, true);
     $jsonContent2 = json_decode($fileContent2, true);
     $allJsonsKeys = array_unique(array_merge(array_keys($jsonContent1), array_keys($jsonContent2)));
