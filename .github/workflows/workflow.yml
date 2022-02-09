@@ -1,4 +1,4 @@
-name: phpcs
+name: testing
 on: [push]
 jobs:
   build:
@@ -13,3 +13,5 @@ jobs:
         run: make install
       - name: Run linter
         run: make lint
+      - name: Run PHPUnit
+        run: make test
