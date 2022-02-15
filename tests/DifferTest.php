@@ -7,22 +7,27 @@ use function Differ\Differ\genDiff;
 
 class DifferTest extends TestCase
 {
-    private $file1;
-    private $file2;
-    private $resultFile;
-
     public function getFixtureFullPath(string $fileName): string
     {
         $fullPath = [__DIR__, 'fixtures', $fileName];
         return implode('/', $fullPath);
     }
 
-    public function testGenDiff(): void
+    public function testGenDiffJson(): void
     {
-        $this->file1 = $this->getFixtureFullPath('plain_file_1.json');
-        $this->file2 = $this->getFixtureFullPath('plain_file_2.json');
-        $this->resultFile = $this->getFixtureFullPath('plain_result.txt');
+        $file1 = $this->getFixtureFullPath('json_before.json');
+        $file2 = $this->getFixtureFullPath('json_after.json');
+        $resultFile = $this->getFixtureFullPath('plain_results.txt');
 
-        $this->assertStringEqualsFile($this->resultFile, genDiff($this->file1, $this->file2));
+        $this->assertStringEqualsFile($resultFile, genDiff($file1, $file2));
+    }
+
+    public function testGenDiffYaml(): void
+    {
+        $file1 = $this->getFixtureFullPath('yaml_before.yml');
+        $file2 = $this->getFixtureFullPath('yaml_after.yaml');
+        $resultFile = $this->getFixtureFullPath('plain_results.txt');
+
+        $this->assertStringEqualsFile($resultFile, genDiff($file1, $file2));
     }
 }
