@@ -9,7 +9,9 @@
         },
         "files": [
             "src/Differ/Differ.php",
-            "src/Parsers.php"
+            "src/Parsers.php",
+            "src/Formatters/Stylish.php",
+            "src/Formatters/Format.php"
         ]
     },
     "authors": [
