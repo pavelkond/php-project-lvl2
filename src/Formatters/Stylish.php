@@ -91,6 +91,6 @@ function formatStylish(array $data): string
 {
     $formatted = iter($data);
     array_unshift($formatted, '{');
-    
+
     return implode(PHP_EOL, $formatted);
 }
