@@ -41,7 +41,7 @@ class DifferTest extends TestCase
         $jsonAfter = $this->getFixtureFullPath('json_after_nested.json');
 
         $yamlBefore = $this->getFixtureFullPath('yaml_before_nested.yml');
-        $yamlAfter = $this->getFixtureFullPath('yaml_after_nested.yml');
+        $yamlAfter = $this->getFixtureFullPath('yaml_after_nested.yaml');
 
         $nestedResult = $this->getFixtureFullPath('nested_result.txt');
 
