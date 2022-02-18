@@ -6,12 +6,12 @@ use Symfony\Component\Yaml\Yaml;
 
 function parseJson($jsonContent)
 {
-    return json_decode($jsonContent, true);
+    return json_decode($jsonContent);
 }
 
 function parseYaml($yamlContent)
 {
-    return (array) Yaml::parse($yamlContent, Yaml::PARSE_OBJECT_FOR_MAP);
+    return Yaml::parse($yamlContent, Yaml::PARSE_OBJECT_FOR_MAP);
 }
 
 function parse(string $content, string $fileType)
