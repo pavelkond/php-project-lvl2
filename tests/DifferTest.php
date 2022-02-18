@@ -3,23 +3,36 @@
 namespace Differ\Tests;
 
 use PHPUnit\Framework\TestCase;
+
 use function Differ\Differ\genDiff;
 
 class DifferTest extends TestCase
 {
     public function getFixtureFullPath(string $fileName): string
     {
-        $fullPath = [__DIR__, 'fixtures', $fileName];
+        if (str_starts_with($fileName, 'json')) {
+            $fixtureDir = 'json';
+        } elseif (str_starts_with($fileName, 'yaml')) {
+            $fixtureDir = 'yaml';
+        } else {
+            $fixtureDir = 'results';
+        }
+        $fullPath = [__DIR__, 'fixtures', $fixtureDir, $fileName];
         return implode('/', $fullPath);
     }
 
-    public function testGenDiffJson(): void
+    public function testGenDiffPlain(): void
     {
-        $file1 = $this->getFixtureFullPath('json_before.json');
-        $file2 = $this->getFixtureFullPath('json_after.json');
-        $resultFile = $this->getFixtureFullPath('plain_results.txt');
+        $jsonBefore = $this->getFixtureFullPath('json_before_plain.json');
+        $jsonAfter = $this->getFixtureFullPath('json_after_plain.json');
 
-        $this->assertStringEqualsFile($resultFile, genDiff($file1, $file2));
+        $yamlBefore = $this->getFixtureFullPath('yaml_before_plain.yml');
+        $yamlAfter = $this->getFixtureFullPath('yaml_after_plain.yaml');
+
+        $plainResult = $this->getFixtureFullPath('plain_result.txt');
+
+        $this->assertStringEqualsFile($plainResult, genDiff($jsonBefore, $jsonAfter));
+        $this->assertStringEqualsFile($plainResult, genDiff($yamlBefore, $yamlAfter));
     }
 
     public function testGenDiffYaml(): void
