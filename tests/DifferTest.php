@@ -35,12 +35,17 @@ class DifferTest extends TestCase
         $this->assertStringEqualsFile($plainResult, genDiff($yamlBefore, $yamlAfter));
     }
 
-    public function testGenDiffYaml(): void
+    public function testGenDiffNested(): void
     {
-        $file1 = $this->getFixtureFullPath('yaml_before.yml');
-        $file2 = $this->getFixtureFullPath('yaml_after.yaml');
-        $resultFile = $this->getFixtureFullPath('plain_results.txt');
+        $jsonBefore = $this->getFixtureFullPath('json_before_nested.json');
+        $jsonAfter = $this->getFixtureFullPath('json_after_nested.json');
 
-        $this->assertStringEqualsFile($resultFile, genDiff($file1, $file2));
+        $yamlBefore = $this->getFixtureFullPath('yaml_before_nested.yml');
+        $yamlAfter = $this->getFixtureFullPath('yaml_after_nested.yml');
+
+        $nestedResult = $this->getFixtureFullPath('nested_result.txt');
+
+        $this->assertStringEqualsFile($nestedResult, genDiff($jsonBefore, $jsonAfter));
+        $this->assertStringEqualsFile($nestedResult, genDiff($yamlBefore, $yamlAfter));
     }
 }
