@@ -3,6 +3,7 @@
 namespace Differ\Differ;
 
 use function Differ\Parsers\parse;
+use function Differ\Formatters\Format\format;
 
 function getFileFullPath(string $pathToFile): string
 {
@@ -29,50 +30,37 @@ function parseFile($pathToFile)
     return parse($fileContent, $fileExtension);
 }
 
-function stringify($value)
+function getDifference(object $dataBefore, object $dataAfter)
 {
-    $valueType = gettype($value);
-    switch ($valueType) {
-        case 'boolean':
-            return $value ? 'true' : 'false';
-        case 'NULL':
-            return 'null';
-        default:
-            return (string) $value;
-    }
-}
-
-
-function genDiff(string $pathToFile1, string $pathToFile2): string
-{
-    $dataBefore = parseFile($pathToFile1);
-    $dataAfter = parseFile($pathToFile2);
     $dataKeys = array_unique(
         array_merge(
-            array_keys($dataBefore),
-            array_keys($dataAfter)
+            array_keys(get_object_vars($dataBefore)),
+            array_keys(get_object_vars($dataAfter))
         )
     );
     sort($dataKeys);
-
-    $result = ['{'];
-    foreach ($dataKeys as $key) {
-        $valBefore = stringify($dataBefore[$key] ?? null);
-        $valAfter = stringify($dataAfter[$key] ?? null);
-        if (array_key_exists($key, $dataBefore) && array_key_exists($key, $dataAfter)) {
-            if ($valBefore === $valAfter) {
-                $result[] = "    {$key}: {$valBefore}";
-            } else {
-                $result[] = "  - {$key}: {$valBefore}";
-                $result[] = "  + {$key}: {$valAfter}";
-            }
-        } elseif (array_key_exists($key, $dataBefore)) {
-            $result[] = "  - {$key}: {$valBefore}";
+    $diff = array_reduce($dataKeys, function ($acc, $key) use ($dataBefore, $dataAfter) {
+        if (property_exists($dataBefore, $key) && property_exists($dataAfter, $key)) {
+            $acc[$key] = is_object($dataBefore->$key) && is_object($dataAfter->$key)
+                ? getDifference($dataBefore->$key, $dataAfter->$key)
+                : [json_encode($dataBefore->$key), json_encode($dataAfter->$key)];
         } else {
-            $result[] = "  + {$key}: {$valAfter}";
+            $acc[$key] = property_exists($dataBefore, $key)
+                ? [json_encode($dataBefore->$key), null]
+                : [null, json_encode($dataAfter->$key)];
         }
-    }
-    $result[] = '}';
+        return $acc;
+    }, []);
 
-    return implode(PHP_EOL, $result);
+    return $diff;
+}
+
+
+function genDiff(string $pathToFile1, string $pathToFile2, string $formatType = 'stylish'): string
+{
+    $dataBefore = parseFile($pathToFile1);
+    $dataAfter = parseFile($pathToFile2);
+    $diff = getDifference($dataBefore, $dataAfter);
+
+    return format($diff, $formatType);
 }
