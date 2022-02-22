@@ -8,10 +8,10 @@ use function Differ\Differ\genDiff;
 
 class DifferTest extends TestCase
 {
-    private $jsonBefore = $this->getFixtureFullPath('json_before_nested.json');
-    private $jsonAfter = $this->getFixtureFullPath('json_after_nested.json');
-    private $yamlBefore = $this->getFixtureFullPath('yaml_before_nested.yml');
-    private $yamlAfter = $this->getFixtureFullPath('yaml_after_nested.yaml');
+    private $jsonBefore;
+    private $jsonAfter;
+    private $yamlBefore;
+    private $yamlAfter;
 
     public function getFixtureFullPath(string $fileName): string
     {
@@ -26,11 +26,28 @@ class DifferTest extends TestCase
         return implode('/', $fullPath);
     }
 
+    public function setUp(): void
+    {
+        $this->jsonBefore = $this->getFixtureFullPath('json_before_nested.json');
+        $this->jsonAfter = $this->getFixtureFullPath('json_after_nested.json');
+        $this->yamlBefore = $this->getFixtureFullPath('yaml_before_nested.yml');
+        $this->yamlAfter = $this->getFixtureFullPath('yaml_after_nested.yaml');
+    }
+
     public function testGenDiffStylish(): void
     {
-        $stylishResult = $this->getFixtureFullPath('nested_result.txt');
+        $stylishResult = $this->getFixtureFullPath('stylish_result.txt');
 
         $this->assertStringEqualsFile($stylishResult, genDiff($this->jsonBefore, $this->jsonAfter));
         $this->assertStringEqualsFile($stylishResult, genDiff($this->yamlBefore, $this->yamlAfter));
+    }
+
+    public function testGenDiffPlain(): void
+    {
+        $plainResult = $this->getFixtureFullPath('plain_result.txt');
+        $format = 'plain';
+
+        $this->assertStringEqualsFile($plainResult, genDiff($this->jsonBefore, $this->jsonAfter, $format));
+        $this->assertStringEqualsFile($plainResult, genDiff($this->yamlBefore, $this->yamlAfter, $format));
     }
 }
