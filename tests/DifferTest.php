@@ -8,6 +8,11 @@ use function Differ\Differ\genDiff;
 
 class DifferTest extends TestCase
 {
+    private $jsonBefore = $this->getFixtureFullPath('json_before_nested.json');
+    private $jsonAfter = $this->getFixtureFullPath('json_after_nested.json');
+    private $yamlBefore = $this->getFixtureFullPath('yaml_before_nested.yml');
+    private $yamlAfter = $this->getFixtureFullPath('yaml_after_nested.yaml');
+
     public function getFixtureFullPath(string $fileName): string
     {
         if (str_starts_with($fileName, 'json')) {
@@ -21,31 +26,11 @@ class DifferTest extends TestCase
         return implode('/', $fullPath);
     }
 
-    public function testGenDiffPlain(): void
+    public function testGenDiffStylish(): void
     {
-        $jsonBefore = $this->getFixtureFullPath('json_before_plain.json');
-        $jsonAfter = $this->getFixtureFullPath('json_after_plain.json');
+        $stylishResult = $this->getFixtureFullPath('nested_result.txt');
 
-        $yamlBefore = $this->getFixtureFullPath('yaml_before_plain.yml');
-        $yamlAfter = $this->getFixtureFullPath('yaml_after_plain.yaml');
-
-        $plainResult = $this->getFixtureFullPath('plain_result.txt');
-
-        $this->assertStringEqualsFile($plainResult, genDiff($jsonBefore, $jsonAfter));
-        $this->assertStringEqualsFile($plainResult, genDiff($yamlBefore, $yamlAfter));
-    }
-
-    public function testGenDiffNested(): void
-    {
-        $jsonBefore = $this->getFixtureFullPath('json_before_nested.json');
-        $jsonAfter = $this->getFixtureFullPath('json_after_nested.json');
-
-        $yamlBefore = $this->getFixtureFullPath('yaml_before_nested.yml');
-        $yamlAfter = $this->getFixtureFullPath('yaml_after_nested.yaml');
-
-        $nestedResult = $this->getFixtureFullPath('nested_result.txt');
-
-        $this->assertStringEqualsFile($nestedResult, genDiff($jsonBefore, $jsonAfter));
-        $this->assertStringEqualsFile($nestedResult, genDiff($yamlBefore, $yamlAfter));
+        $this->assertStringEqualsFile($stylishResult, genDiff($this->jsonBefore, $this->jsonAfter));
+        $this->assertStringEqualsFile($stylishResult, genDiff($this->yamlBefore, $this->yamlAfter));
     }
 }
