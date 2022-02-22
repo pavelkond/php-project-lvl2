@@ -3,7 +3,7 @@
 namespace Differ\Differ;
 
 use function Differ\Parsers\parse;
-use function Differ\Formatters\Format\format;
+use function Differ\Formatters\Formatters\format;
 
 function getFileFullPath(string $pathToFile): string
 {
