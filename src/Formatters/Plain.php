@@ -6,7 +6,7 @@ function stringify(mixed $value): string
 {
     switch (gettype($value)) {
         case 'string':
-            return "'{$value}'";
+            return "'$value'";
         case 'boolean':
             return $value ? 'true' : 'false';
         case 'NULL':
@@ -20,48 +20,45 @@ function stringify(mixed $value): string
 
 function getAddedRow(string $property, string $value): string
 {
-    return "Property {$property} was added with value: {$value}";
+    return "Property $property was added with value: $value";
 }
 
 function getRemovedRow(string $property): string
 {
-    return "Property {$property} was removed";
+    return "Property $property was removed";
 }
 
 function getUpdatedRow(string $property, string $oldValue, string $newValue): string
 {
-    return "Property {$property} was updated. From {$oldValue} to {$newValue}";
+    return "Property $property was updated. From $oldValue to $newValue";
 }
 
-function iter(array $data, string $propertyPath = ''): array
+function formatData(array $data, string $propertyPath = ''): array
 {
-    $result = [];
-    foreach ($data as $key => $value) {
-        $currentPropPath = $propertyPath === '' ? $key : $propertyPath . '.' . $key;
-        if (array_keys($value) === [0, 1]) {
-            [$valBefore, $valAfter] = $value;
+    return array_reduce(array_keys($data), function ($acc, $key) use ($data, $propertyPath) {
+        $currentPropPath = $propertyPath === '' ? $key : "$propertyPath.$key";
+        if (array_keys($data[$key]) === [0, 1]) {
+            [$valBefore, $valAfter] = $data[$key];
             $valBefore = is_null($valBefore) ? $valBefore : stringify(json_decode($valBefore, true));
             $valAfter = is_null($valAfter) ? $valAfter : stringify(json_decode($valAfter, true));
-
             if (is_null($valBefore)) {
-                $result[] = getAddedRow(stringify($currentPropPath), $valAfter);
+                $acc[] = getAddedRow(stringify($currentPropPath), $valAfter);
             } elseif (is_null($valAfter)) {
-                $result[] = getRemovedRow(stringify($currentPropPath));
+                $acc[] = getRemovedRow(stringify($currentPropPath));
             } elseif ($valBefore !== $valAfter) {
-                $result[] = getUpdatedRow(stringify($currentPropPath), $valBefore, $valAfter);
+                $acc[] = getUpdatedRow(stringify($currentPropPath), $valBefore, $valAfter);
             }
         } else {
-            $nestedResult = iter($value, $currentPropPath);
-            $result = [...$result, ...$nestedResult];
+            $nestedResult = formatData($data[$key], $currentPropPath);
+            $acc = [...$acc, ...$nestedResult];
         }
-    }
-
-    return $result;
+        return $acc;
+    }, []);
 }
 
 function formatPlain(array $data): string
 {
-    $formatted = iter($data);
+    $formatted = formatData($data);
 
     return implode(PHP_EOL, $formatted);
 }
