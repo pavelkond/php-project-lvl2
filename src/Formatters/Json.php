@@ -2,63 +2,51 @@
 
 namespace Differ\Formatters\Json;
 
-function getAddedProperty(string $property, mixed $value): array
+function getPropertyDiff(string $property, string $operationType, $value = null, $newValue = null): array
 {
-    return [
-        "op" => "add",
-        "property" => $property,
-        "value" => $value
-    ];
+    $diff = ["op" => $operationType, "property" => $property];
+    switch ($operationType) {
+        case 'add':
+            $diff['value'] = $value;
+            break;
+        case 'update':
+            $diff['oldValue'] = $value;
+            $diff['newValue'] = $newValue;
+            break;
+    }
+
+    return $diff;
 }
 
-function getRemovedProperty(string $property): array
+function formatData(array $data, string $propertyPath = ''): array
 {
-    return [
-        "op" => "remove",
-        "property" => $property
-    ];
-}
-
-function getUpdatedProperty(string $property, mixed $oldValue, mixed $newValue): array
-{
-    return [
-        "op" => "update",
-        "property" => $property,
-        "oldValue" => $oldValue,
-        "newValue" => $newValue
-    ];
-}
-
-function iter(array $data, string $path = ''): array
-{
-    $result = [];
-    foreach ($data as $key => $value) {
-        $currentPropPath = $path === '' ? $key : "{$path}.{$key}";
-        if (array_keys($value) === [0, 1]) {
-            [$valBefore, $valAfter] = $value;
+    return array_reduce(array_keys($data), function ($acc, $key) use ($data, $propertyPath) {
+        $currentPropPath = $propertyPath === '' ? $key : "$propertyPath.$key";
+        if (array_keys($data[$key]) === [0, 1]) {
+            [$valBefore, $valAfter] = $data[$key];
             if (is_null($valBefore)) {
-                $result[] = getAddedProperty($currentPropPath, json_decode($valAfter, true));
+                $acc[] = getPropertyDiff($currentPropPath, 'add', json_decode($valAfter, true));
             } elseif (is_null($valAfter)) {
-                $result[] = getRemovedProperty($currentPropPath);
+                $acc[] = getPropertyDiff($currentPropPath, 'remove');
             } elseif ($valAfter !== $valBefore) {
-                $result[] = getUpdatedProperty(
+                $acc[] = getPropertyDiff(
                     $currentPropPath,
+                    'update',
                     json_decode($valBefore, true),
                     json_decode($valAfter, true)
                 );
             }
         } else {
-            $nestedResult = iter($value, $currentPropPath);
-            $result = [...$result, ...$nestedResult];
+            $nestedResult = formatData($data[$key], $currentPropPath);
+            $acc = [...$acc, ...$nestedResult];
         }
-    }
-
-    return $result;
+        return $acc;
+    }, []);
 }
 
 function formatJson(array $data): string
 {
-    $formatted = iter($data);
+    $formatted = formatData($data);
 
     return json_encode($formatted);
 }
