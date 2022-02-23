@@ -6,7 +6,7 @@ const INDENT = '    ';
 const ADD_ROW = '  + ';
 const REMOVE_ROW = '  - ';
 
-function toString($value)
+function toString(mixed $value, int $depth = 1): string
 {
     $valueType = gettype($value);
     switch ($valueType) {
@@ -14,74 +14,68 @@ function toString($value)
             return $value ? 'true' : 'false';
         case 'NULL':
             return 'null';
+        case 'array':
+            return stringifyArray($value, $depth);
         default:
             return (string) $value;
     }
 }
 
-function stringifyArray($data, $depth)
+function stringifyArray(array $data, int $depth): string
 {
-    $result = ['{'];
-    foreach ($data as $key => $value) {
-        if (is_array($value)) {
-            $value = stringifyArray($value, $depth + 1);
-        }
-        $result[] = getIntendedRow($key, $value, $depth);
-    }
+    $result = array_reduce(array_keys($data), function ($acc, $key) use ($data, $depth) {
+        $value = is_array($data[$key])
+            ? stringifyArray($data[$key], $depth + 1)
+            : $data[$key];
+        $acc[] = getIntendedRow($key, $value, $depth);
+        return $acc;
+    }, ['{']);
     $result[] = str_repeat(INDENT, $depth - 1) . "}";
 
     return implode(PHP_EOL, $result);
 }
 
-function getAddedRow($key, $value, $depth = 1)
+function getAddedRow($key, $value, $depth = 1): string
 {
-    return str_repeat(INDENT, $depth - 1) . ADD_ROW . "{$key}: {$value}";
+    return str_repeat(INDENT, $depth - 1) . ADD_ROW . "$key: $value";
 }
 
-function getRemovedRow($key, $value, $depth = 1)
+function getRemovedRow($key, $value, $depth = 1): string
 {
-    return str_repeat(INDENT, $depth - 1) . REMOVE_ROW . "{$key}: {$value}";
+    return str_repeat(INDENT, $depth - 1) . REMOVE_ROW . "$key: $value";
 }
 
-function getIntendedRow($key, $value, $depth = 1)
+function getIntendedRow($key, $value, $depth = 1): string
 {
-    return str_repeat(INDENT, $depth) . "{$key}: {$value}";
+    return str_repeat(INDENT, $depth) . "$key: $value";
 }
 
-function iter(array $data, $depth = 1)
+function formatData(array $data, $depth = 1)
 {
-    $result = [];
-    foreach ($data as $key => $value) {
-        if (array_keys($value) === [0, 1]) {
-            [$valBefore, $valAfter] = $value;
-            if (!is_null($valBefore)) {
-                $valBefore = is_array(json_decode($valBefore, true))
-                    ? stringifyArray(json_decode($valBefore, true), $depth + 1)
-                    : toString(json_decode($valBefore, true));
-            }
-            if (!is_null($valAfter)) {
-                $valAfter = is_array(json_decode($valAfter, true))
-                    ? stringifyArray(json_decode($valAfter, true), $depth + 1)
-                    : toString(json_decode($valAfter, true));
-            }
-            if ($valBefore === $valAfter) {
-                $result[] = getIntendedRow($key, $valBefore, $depth);
-            } elseif (is_null($valBefore)) {
-                $result[] = getAddedRow($key, $valAfter, $depth);
-            } elseif (is_null($valAfter)) {
-                $result[] = getRemovedRow($key, $valBefore, $depth);
+    $result = array_reduce(array_keys($data), function ($acc, $key) use ($data, $depth) {
+        if (array_keys($data[$key]) === [0, 1]) {
+            [$valBefore, $valAfter] = $data[$key];
+            $valBefore = is_null($valBefore) ? $valBefore : toString(json_decode($valBefore, true), $depth + 1);
+            $valAfter = is_null($valAfter) ? $valAfter : toString(json_decode($valAfter, true), $depth + 1);
+            if ($valBefore !== $valAfter) {
+                if (is_null($valBefore)) {
+                    $acc[] = getAddedRow($key, $valAfter, $depth);
+                } elseif (is_null($valAfter)) {
+                    $acc[] = getRemovedRow($key, $valBefore, $depth);
+                } else {
+                    $acc[] = getRemovedRow($key, $valBefore, $depth);
+                    $acc[] = getAddedRow($key, $valAfter, $depth);
+                }
             } else {
-                $result[] = getRemovedRow($key, $valBefore, $depth);
-                $result[] = getAddedRow($key, $valAfter, $depth);
+                $acc[] = getIntendedRow($key, $valBefore, $depth);
             }
         } else {
-            $nestedFormat = iter($value, $depth + 1);
-            $result[] = getIntendedRow($key, '{', $depth);
-            foreach ($nestedFormat as $str) {
-                $result[] = $str;
-            }
+            $nestedFormat = formatData($data[$key], $depth + 1);
+            $acc[] = getIntendedRow($key, '{', $depth);
+            $acc = [...$acc, ...$nestedFormat];
         }
-    }
+        return $acc;
+    }, []);
     $result[] = str_repeat(INDENT, $depth - 1) . "}";
 
     return $result;
@@ -89,7 +83,7 @@ function iter(array $data, $depth = 1)
 
 function formatStylish(array $data): string
 {
-    $formatted = iter($data);
+    $formatted = formatData($data);
     array_unshift($formatted, '{');
 
     return implode(PHP_EOL, $formatted);
