@@ -35,22 +35,22 @@ function stringifyArray(array $data, int $depth): string
     return implode(PHP_EOL, $result);
 }
 
-function getAddedRow($key, $value, $depth = 1): string
+function getAddedRow(string $key, mixed $value, int $depth = 1): string
 {
     return str_repeat(INDENT, $depth - 1) . ADD_ROW . "$key: $value";
 }
 
-function getRemovedRow($key, $value, $depth = 1): string
+function getRemovedRow(string $key, mixed $value, int $depth = 1): string
 {
     return str_repeat(INDENT, $depth - 1) . REMOVE_ROW . "$key: $value";
 }
 
-function getIntendedRow($key, $value, $depth = 1): string
+function getIntendedRow(string $key, mixed $value, int $depth = 1): string
 {
     return str_repeat(INDENT, $depth) . "$key: $value";
 }
 
-function formatData(array $data, $depth = 1)
+function formatData(array $data, int $depth = 1)
 {
     $result = array_reduce(array_keys($data), function ($acc, $key) use ($data, $depth) {
         if (array_keys($data[$key]) === [0, 1]) {
@@ -83,8 +83,7 @@ function formatData(array $data, $depth = 1)
 
 function formatStylish(array $data): string
 {
-    $formatted = formatData($data);
-    array_unshift($formatted, '{');
+    $formatted = ['{', ...formatData($data)];
 
     return implode(PHP_EOL, $formatted);
 }

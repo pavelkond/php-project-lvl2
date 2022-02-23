@@ -18,7 +18,7 @@ function stringify(mixed $value): string
     }
 }
 
-function getAddedRow(string $property, string $value): string
+function getAddedRow(string $property, mixed $value): string
 {
     return "Property $property was added with value: $value";
 }

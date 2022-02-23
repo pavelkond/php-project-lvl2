@@ -2,7 +2,7 @@
 
 namespace Differ\Formatters\Json;
 
-function getPropertyDiff(string $property, string $operationType, $value = null, $newValue = null): array
+function getPropertyDiff(string $property, string $operationType, mixed $value = null, mixed $newValue = null): array
 {
     $diff = ["op" => $operationType, "property" => $property];
     switch ($operationType) {
