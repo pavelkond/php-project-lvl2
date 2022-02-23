@@ -39,14 +39,14 @@ function formatData(array $data, string $propertyPath = ''): array
         $currentPropPath = $propertyPath === '' ? $key : "$propertyPath.$key";
         if (array_keys($data[$key]) === [0, 1]) {
             [$valBefore, $valAfter] = $data[$key];
-            $valBefore = is_null($valBefore) ? $valBefore : stringify(json_decode($valBefore, true));
-            $valAfter = is_null($valAfter) ? $valAfter : stringify(json_decode($valAfter, true));
+            $valBeforeStr = stringify(json_decode($valBefore, true));
+            $valAfterStr = stringify(json_decode($valAfter, true));
             if (is_null($valBefore)) {
-                return [...$acc, getAddedRow(stringify($currentPropPath), $valAfter)];
+                return [...$acc, getAddedRow(stringify($currentPropPath), $valAfterStr)];
             } elseif (is_null($valAfter)) {
                 return [...$acc, getRemovedRow(stringify($currentPropPath))];
             } elseif ($valBefore !== $valAfter) {
-                return [...$acc, getUpdatedRow(stringify($currentPropPath), $valBefore, $valAfter)];
+                return [...$acc, getUpdatedRow(stringify($currentPropPath), $valBeforeStr, $valAfterStr)];
             }
         } else {
             $nestedResult = formatData($data[$key], $currentPropPath);
