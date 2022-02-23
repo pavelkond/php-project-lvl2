@@ -10,7 +10,7 @@ function getFileFullPath(string $pathToFile): string
     return str_starts_with($pathToFile, '/') ? $pathToFile : __DIR__ . '/../' . $pathToFile;
 }
 
-function getFileExtension($pathToFile)
+function getFileExtension(string $pathToFile): string|null
 {
     if (str_ends_with($pathToFile, '.json')) {
         return 'json';
@@ -21,7 +21,7 @@ function getFileExtension($pathToFile)
     return null;
 }
 
-function parseFile($pathToFile)
+function parseFile(string $pathToFile): object
 {
     $filePath = getFileFullPath($pathToFile);
     $fileContent = file_get_contents($filePath);
@@ -30,7 +30,7 @@ function parseFile($pathToFile)
     return parse($fileContent, $fileExtension);
 }
 
-function getDifference(object $dataBefore, object $dataAfter)
+function getDifference(object $dataBefore, object $dataAfter): array
 {
     $dataKeys = array_unique(
         array_merge(
@@ -39,7 +39,8 @@ function getDifference(object $dataBefore, object $dataAfter)
         )
     );
     sort($dataKeys);
-    $diff = array_reduce($dataKeys, function ($acc, $key) use ($dataBefore, $dataAfter) {
+
+    return array_reduce($dataKeys, function ($acc, $key) use ($dataBefore, $dataAfter) {
         if (property_exists($dataBefore, $key) && property_exists($dataAfter, $key)) {
             $acc[$key] = is_object($dataBefore->$key) && is_object($dataAfter->$key)
                 ? getDifference($dataBefore->$key, $dataAfter->$key)
@@ -51,16 +52,14 @@ function getDifference(object $dataBefore, object $dataAfter)
         }
         return $acc;
     }, []);
-
-    return $diff;
 }
 
 
-function genDiff(string $pathToFile1, string $pathToFile2, string $formatType = 'stylish'): string
+function genDiff(string $pathToFile1, string $pathToFile2, string $outputFormat = 'stylish'): string
 {
     $dataBefore = parseFile($pathToFile1);
     $dataAfter = parseFile($pathToFile2);
     $diff = getDifference($dataBefore, $dataAfter);
 
-    return format($diff, $formatType);
+    return format($diff, $outputFormat);
 }
