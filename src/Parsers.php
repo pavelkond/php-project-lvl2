@@ -4,12 +4,12 @@ namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
-function parseJson($jsonContent)
+function parseJson(string $jsonContent)
 {
     return json_decode($jsonContent);
 }
 
-function parseYaml($yamlContent)
+function parseYaml(string $yamlContent)
 {
     return Yaml::parse($yamlContent, Yaml::PARSE_OBJECT_FOR_MAP);
 }
