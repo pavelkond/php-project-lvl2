@@ -24,21 +24,30 @@ function getFileExtension(string $pathToFile): string|null
 function parseFile(string $pathToFile): object
 {
     $filePath = getFileFullPath($pathToFile);
-    $fileContent = file_get_contents($filePath);
-    $fileExtension = getFileExtension($pathToFile);
+    try {
+        $fileContent = file_get_contents($filePath);
+        $fileExtension = getFileExtension($pathToFile);
+        if ($fileContent === false) {
+            throw new \Exception('Error getting file content');
+        }
+        if (is_null($fileExtension)) {
+            throw new \Exception('Invalid file extension');
+        }
+    } catch (\Exception $e) {
+        return (object) [];
+    }
 
     return parse($fileContent, $fileExtension);
 }
 
 function getDifference(object $dataBefore, object $dataAfter): array
 {
-    $dataKeys = array_unique(
+    $dataKeys = collect(array_unique(
         array_merge(
             array_keys(get_object_vars($dataBefore)),
             array_keys(get_object_vars($dataAfter))
         )
-    );
-    sort($dataKeys);
+    ))->sort()->toArray();
 
     return array_reduce($dataKeys, function ($acc, $key) use ($dataBefore, $dataAfter) {
         if (property_exists($dataBefore, $key) && property_exists($dataAfter, $key)) {
