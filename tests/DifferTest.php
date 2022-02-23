@@ -50,4 +50,13 @@ class DifferTest extends TestCase
         $this->assertStringEqualsFile($plainResult, genDiff($this->jsonBefore, $this->jsonAfter, $format));
         $this->assertStringEqualsFile($plainResult, genDiff($this->yamlBefore, $this->yamlAfter, $format));
     }
+
+    public function testGenDiffJson(): void
+    {
+        $jsonResult = $this->getFixtureFullPath('result_json.json');
+        $format = 'json';
+
+        $this->assertJsonStringEqualsJsonFile($jsonResult, genDiff($this->jsonBefore, $this->jsonAfter, $format));
+        $this->assertJsonStringEqualsJsonFile($jsonResult, genDiff($this->yamlBefore, $this->yamlAfter, $format));
+    }
 }

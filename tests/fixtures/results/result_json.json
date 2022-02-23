@@ -1,0 +1,70 @@
+[
+  {
+    "op": "add",
+    "property": "common.follow",
+    "value": false
+  },
+  {
+    "op": "remove",
+    "property": "common.setting2"
+  },
+  {
+    "op": "update",
+    "property": "common.setting3",
+    "oldValue": true,
+    "newValue": null
+  },
+  {
+    "op": "add",
+    "property": "common.setting4",
+    "value": "blah blah"
+  },
+  {
+    "op": "add",
+    "property": "common.setting5",
+    "value": {
+      "key5": "value5"
+    }
+  },
+  {
+    "op": "update",
+    "property": "common.setting6.doge.wow",
+    "oldValue": "",
+    "newValue": "so much"
+  },
+  {
+    "op": "add",
+    "property": "common.setting6.ops",
+    "value": "vops"
+  },
+  {
+    "op": "update",
+    "property": "group1.baz",
+    "oldValue": "bas",
+    "newValue": "bars"
+  },
+  {
+    "op": "update",
+    "property": "group1.nest",
+    "oldValue": {
+      "key": "value"
+    },
+    "newValue": "str"
+  },
+  {
+    "op": "remove",
+    "property": "group2"
+  },
+  {
+    "op": "add",
+    "property": "group3",
+    "value": {
+      "deep": {
+        "id": {
+          "number": 45
+        }
+      },
+      "fee": 100500
+    }
+  }
+]
