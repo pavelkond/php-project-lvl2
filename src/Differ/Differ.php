@@ -50,14 +50,16 @@ function getDifference(object $dataBefore, object $dataAfter): array
     ))->sort()->toArray();
 
     return array_reduce($dataKeys, function ($acc, $key) use ($dataBefore, $dataAfter) {
-        if (property_exists($dataBefore, $key) && property_exists($dataAfter, $key)) {
-            $acc[$key] = is_object($dataBefore->$key) && is_object($dataAfter->$key)
-                ? getDifference($dataBefore->$key, $dataAfter->$key)
-                : [json_encode($dataBefore->$key), json_encode($dataAfter->$key)];
-        } else {
-            $acc[$key] = property_exists($dataBefore, $key)
-                ? [json_encode($dataBefore->$key), null]
-                : [null, json_encode($dataAfter->$key)];
+        if (!array_key_exists($key, $acc)) {
+            if (property_exists($dataBefore, $key) && property_exists($dataAfter, $key)) {
+                $acc[$key] = is_object($dataBefore->$key) && is_object($dataAfter->$key)
+                    ? getDifference($dataBefore->$key, $dataAfter->$key)
+                    : [json_encode($dataBefore->$key), json_encode($dataAfter->$key)];
+            } else {
+                $acc[$key] = property_exists($dataBefore, $key)
+                    ? [json_encode($dataBefore->$key), null]
+                    : [null, json_encode($dataAfter->$key)];
+            }
         }
         return $acc;
     }, []);
