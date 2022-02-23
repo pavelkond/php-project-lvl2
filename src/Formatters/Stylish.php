@@ -78,9 +78,8 @@ function formatData(array $data, int $depth = 1)
             return [...$acc, getIntendedRow($key, '{', $depth), ...$nestedFormat];
         }
     }, []);
-    $result[] = str_repeat(INDENT, $depth - 1) . "}";
 
-    return $result;
+    return [...$result, str_repeat(INDENT, $depth - 1) . "}"];
 }
 
 function formatStylish(array $data): string
