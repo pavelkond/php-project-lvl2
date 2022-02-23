@@ -8,7 +8,7 @@ function stringify(mixed $value): string
         case 'string':
             return "'$value'";
         case 'boolean':
-            return $value ? 'true' : 'false';
+            return is_bool($value) && $value ? 'true' : 'false';
         case 'NULL':
             return 'null';
         case 'array':
@@ -42,15 +42,15 @@ function formatData(array $data, string $propertyPath = ''): array
             $valBefore = is_null($valBefore) ? $valBefore : stringify(json_decode($valBefore, true));
             $valAfter = is_null($valAfter) ? $valAfter : stringify(json_decode($valAfter, true));
             if (is_null($valBefore)) {
-                $acc[] = getAddedRow(stringify($currentPropPath), $valAfter);
+                return [...$acc, getAddedRow(stringify($currentPropPath), $valAfter)];
             } elseif (is_null($valAfter)) {
-                $acc[] = getRemovedRow(stringify($currentPropPath));
+                return [...$acc, getRemovedRow(stringify($currentPropPath))];
             } elseif ($valBefore !== $valAfter) {
-                $acc[] = getUpdatedRow(stringify($currentPropPath), $valBefore, $valAfter);
+                return [...$acc, getUpdatedRow(stringify($currentPropPath), $valBefore, $valAfter)];
             }
         } else {
             $nestedResult = formatData($data[$key], $currentPropPath);
-            $acc = [...$acc, ...$nestedResult];
+            return [...$acc, ...$nestedResult];
         }
         return $acc;
     }, []);

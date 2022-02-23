@@ -11,7 +11,7 @@ function toString(mixed $value, int $depth = 1): string
     $valueType = gettype($value);
     switch ($valueType) {
         case 'boolean':
-            return $value ? 'true' : 'false';
+            return is_bool($value) && $value ? 'true' : 'false';
         case 'NULL':
             return 'null';
         case 'array':
@@ -27,12 +27,13 @@ function stringifyArray(array $data, int $depth): string
         $value = is_array($data[$key])
             ? stringifyArray($data[$key], $depth + 1)
             : $data[$key];
-        $acc[] = getIntendedRow($key, $value, $depth);
-        return $acc;
+        return [...$acc, getIntendedRow($key, $value, $depth)];
     }, ['{']);
-    $result[] = str_repeat(INDENT, $depth - 1) . "}";
 
-    return implode(PHP_EOL, $result);
+    return implode(
+        PHP_EOL,
+        [...$result, str_repeat(INDENT, $depth - 1) . "}"]
+    );
 }
 
 function getAddedRow(string $key, mixed $value, int $depth = 1): string
@@ -59,22 +60,19 @@ function formatData(array $data, int $depth = 1)
             $valAfter = is_null($valAfter) ? $valAfter : toString(json_decode($valAfter, true), $depth + 1);
             if ($valBefore !== $valAfter) {
                 if (is_null($valBefore)) {
-                    $acc[] = getAddedRow($key, $valAfter, $depth);
+                    return [...$acc, getAddedRow($key, $valAfter, $depth)];
                 } elseif (is_null($valAfter)) {
-                    $acc[] = getRemovedRow($key, $valBefore, $depth);
+                    return [...$acc, getRemovedRow($key, $valBefore, $depth)];
                 } else {
-                    $acc[] = getRemovedRow($key, $valBefore, $depth);
-                    $acc[] = getAddedRow($key, $valAfter, $depth);
+                    return [...$acc, getRemovedRow($key, $valBefore, $depth), getAddedRow($key, $valAfter, $depth)];
                 }
             } else {
-                $acc[] = getIntendedRow($key, $valBefore, $depth);
+                return [...$acc, getIntendedRow($key, $valBefore, $depth)];
             }
         } else {
             $nestedFormat = formatData($data[$key], $depth + 1);
-            $acc[] = getIntendedRow($key, '{', $depth);
-            $acc = [...$acc, ...$nestedFormat];
+            return [...$acc, getIntendedRow($key, '{', $depth), ...$nestedFormat];
         }
-        return $acc;
     }, []);
     $result[] = str_repeat(INDENT, $depth - 1) . "}";
 
