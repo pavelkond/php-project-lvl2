@@ -52,15 +52,14 @@ function getDifference(object $dataBefore, object $dataAfter): array
 
     return array_reduce($dataKeys, function ($acc, $key) use ($dataBefore, $dataAfter) {
         if (property_exists($dataBefore, $key) && property_exists($dataAfter, $key)) {
-            $acc[$key] = is_object($dataBefore->$key) && is_object($dataAfter->$key)
-                ? getDifference($dataBefore->$key, $dataAfter->$key)
-                : [json_encode($dataBefore->$key), json_encode($dataAfter->$key)];
+            return is_object($dataBefore->$key) && is_object($dataAfter->$key)
+                ? array_merge($acc, [$key => getDifference($dataBefore->$key, $dataAfter->$key)])
+                : array_merge($acc, [$key => [json_encode($dataBefore->$key), json_encode($dataAfter->$key)]]);
         } else {
-            $acc[$key] = property_exists($dataBefore, $key)
-                ? [json_encode($dataBefore->$key), null]
-                : [null, json_encode($dataAfter->$key)];
+            return property_exists($dataBefore, $key)
+                ? array_merge($acc, [$key => [json_encode($dataBefore->$key), null]])
+                : array_merge($acc, [$key => [null, json_encode($dataAfter->$key)]]);
         }
-        return $acc;
     }, []);
 }
 
