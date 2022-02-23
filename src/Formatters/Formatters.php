@@ -6,9 +6,9 @@ use function Differ\Formatters\Stylish\formatStylish;
 use function Differ\Formatters\Plain\formatPlain;
 use function Differ\Formatters\Json\formatJson;
 
-function format(array $data, string $formatType): string|false
+function format(array $data, string $outputFormat): string|false
 {
-    switch ($formatType) {
+    switch ($outputFormat) {
         case 'stylish':
             return formatStylish($data);
         case 'plain':
