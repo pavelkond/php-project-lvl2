@@ -16,6 +16,9 @@
             "src/Formatters/Json.php"
         ]
     },
+    "bin": [
+        "bin/gendiff"
+    ],
     "authors": [
         {
             "name": "Pavel Kondybailo",
