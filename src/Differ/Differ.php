@@ -40,6 +40,7 @@ function parseFile(string $pathToFile): object
     return parse($fileContent, $fileExtension);
 }
 
+
 function getDifference(object $dataBefore, object $dataAfter): array
 {
     $dataKeys = collect(array_unique(
