@@ -29,11 +29,9 @@ function stringifyArray(array $data, int $depth): string
             : $data[$key];
         return [...$acc, getIntendedRow($key, $value, $depth)];
     }, ['{']);
+    $dataStr = [...$result, str_repeat(INDENT, $depth - 1) . "}"];
 
-    return implode(
-        PHP_EOL,
-        [...$result, str_repeat(INDENT, $depth - 1) . "}"]
-    );
+    return implode(PHP_EOL, $dataStr);
 }
 
 function getAddedRow(string $key, mixed $value, int $depth = 1): string
@@ -75,7 +73,8 @@ function formatData(array $data, int $depth = 1)
             }
         } else {
             $nestedFormat = formatData($data[$key], $depth + 1);
-            return [...$acc, getIntendedRow($key, '{', $depth), ...$nestedFormat];
+            $subNode = [getIntendedRow($key, '{', $depth), ...$nestedFormat];
+            return [...$acc, ...$subNode];
         }
     }, []);
 
